@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>内容发布站</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --ink: #13293d;
+      --accent: #f2542d;
+      --accent-2: #0b6e4f;
+      --line: #e7ddcd;
+      --card: #fffdf8;
+      --soft: #2b4a63;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at 85% 10%, #ffd8bf 0%, transparent 30%),
+        radial-gradient(circle at 10% 90%, #cce7dd 0%, transparent 28%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(920px, 92vw);
+      margin: 36px auto 70px;
+    }
+
+    .hero {
+      border: 2px solid var(--ink);
+      background: linear-gradient(135deg, #fff8ea, #fff);
+      border-radius: 20px;
+      padding: 30px 24px;
+      box-shadow: 10px 10px 0 #13293d22;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .link {
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      padding: 7px 12px;
+      color: var(--ink);
+      text-decoration: none;
+      background: #fff;
+      font-weight: 700;
+      transition: transform .15s ease;
+    }
+
+    .link:hover { transform: translateY(-2px); }
+
+    h1 {
+      margin: 8px 0 10px;
+      font-size: clamp(26px, 4vw, 40px);
+      line-height: 1.2;
+    }
+
+    .intro {
+      margin: 0;
+      color: var(--soft);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .meta {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      color: #5f7a90;
+      font-size: 13px;
+    }
+
+    .source-link {
+      color: #2b4a63;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    .pill {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px;
+      color: #fff;
+      font-weight: 700;
+      background: var(--accent-2);
+    }
+
+    .content {
+      margin-top: 16px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      background: var(--card);
+      line-height: 1.8;
+      font-size: 16px;
+      color: #1f3d56;
+      overflow-x: auto;
+    }
+
+    .content img {
+      max-width: 100%;
+      border-radius: 10px;
+      display: block;
+      margin: 12px auto;
+      border: 1px solid #e6ddcd;
+    }
+
+    .content h1,
+    .content h2,
+    .content h3,
+    .content h4 {
+      line-height: 1.4;
+      margin-top: 1.2em;
+      margin-bottom: .6em;
+    }
+
+    .content p { margin: .7em 0; }
+    .content ul,
+    .content ol { padding-left: 1.4em; }
+
+    .content blockquote {
+      margin: 12px 0;
+      border-left: 4px solid #c6d8e7;
+      padding: 6px 12px;
+      background: #f5fbff;
+      color: #2f5168;
+      border-radius: 6px;
+    }
+
+    .content code {
+      font-family: "JetBrains Mono", "Consolas", monospace;
+      background: #fff2db;
+      border: 1px solid #f0ddb9;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: .92em;
+    }
+
+    .content pre {
+      position: relative;
+      margin: 12px 0;
+      background: #102031;
+      color: #f2f8ff;
+      border-radius: 10px;
+      padding: 42px 12px 12px;
+      overflow-x: auto;
+    }
+
+    .copy-code-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,.08);
+      color: #f2f8ff;
+      cursor: pointer;
+    }
+
+    .copy-code-btn:hover {
+      background: rgba(255,255,255,.16);
+      transform: translateY(-1px);
+    }
+
+    .content pre code {
+      display: block;
+      white-space: pre;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      padding: 0;
+    }
+
+    .content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+    }
+
+    .content th,
+    .content td {
+      border: 1px solid #deccb0;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .content hr {
+      border: 0;
+      border-top: 2px dashed #decfb9;
+      margin: 16px 0;
+    }
+
+    .empty {
+      border: 2px dashed #d8cfc0;
+      border-radius: 14px;
+      padding: 18px;
+      color: #5a7388;
+      background: #fff;
+      font-weight: 600;
+      margin-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="nav">
+        <a class="link" href="/">返回首页</a>
+        
+      </div>
+      <h1 id="title">加载中...</h1>
+      <p class="intro" id="intro"></p>
+      <div class="meta">
+        <span class="pill" id="category"></span>
+        <span id="date"></span>
+        <span id="contentType"></span>
+        <a id="sourceLink" class="source-link" href="#" target="_blank" style="display:none;"></a>
+      </div>
+      <article class="content" id="content"></article>
+      <div class="empty" id="empty" style="display:none;">未找到文章内容。</div>
+    </section>
+  </main>
+
+  <script>
+    const titleEl = document.getElementById("title");
+    const introEl = document.getElementById("intro");
+    const categoryEl = document.getElementById("category");
+    const dateEl = document.getElementById("date");
+    const contentTypeEl = document.getElementById("contentType");
+    const sourceLinkEl = document.getElementById("sourceLink");
+    const contentEl = document.getElementById("content");
+    const emptyEl = document.getElementById("empty");
+
+    function getArticleId() {
+      const parts = location.pathname.split("/").filter(Boolean);
+      return parts.length >= 2 ? parts[1] : "";
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      if (Number.isNaN(date.getTime())) return "";
+      return date.toLocaleString("zh-CN");
+    }
+
+    function formatType(type) {
+      if (type === "markdown") return "内容格式 Markdown";
+      if (type === "html") return "内容格式 HTML";
+      if (type === "text") return "内容格式 纯文本";
+      return "内容格式 富文本";
+    }
+
+    function fallbackCopyText(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "readonly");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      textarea.style.pointerEvents = "none";
+      textarea.style.left = "-9999px";
+      textarea.style.top = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
+      let copied = false;
+      try {
+        copied = document.execCommand("copy");
+      } catch (_) {
+        copied = false;
+      }
+      textarea.remove();
+      return copied;
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (_) {}
+      }
+      return fallbackCopyText(text);
+    }
+
+    function attachCopyButtons() {
+      contentEl.querySelectorAll("pre").forEach((pre) => {
+        if (pre.querySelector(".copy-code-btn")) return;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "copy-code-btn";
+        btn.textContent = "复制代码";
+        btn.addEventListener("click", async () => {
+          const code = pre.querySelector("code");
+          const text = code ? code.textContent || "" : pre.textContent || "";
+          const ok = await copyText(text);
+          btn.textContent = ok ? "已复制" : "复制失败";
+          setTimeout(() => { btn.textContent = "复制代码"; }, 1600);
+        });
+        pre.appendChild(btn);
+      });
+    }
+
+    async function loadArticle() {
+      const id = getArticleId();
+      if (!id) {
+        emptyEl.style.display = "block";
+        contentEl.style.display = "none";
+        titleEl.textContent = "文章不存在";
+        return;
+      }
+
+      try {
+        const [articleRes, settingsRes] = await Promise.all([
+          fetch(`/api/articles/${id}`),
+          fetch("/api/settings")
+        ]);
+        const data = await articleRes.json();
+        const settings = settingsRes.ok ? await settingsRes.json() : {};
+        if (!articleRes.ok) throw new Error(data.error || "加载失败");
+
+        titleEl.textContent = data.title || "未命名文章";
+        introEl.textContent = data.intro || "";
+        categoryEl.textContent = data.categoryName || "未分类";
+        dateEl.textContent = `发布时间 ${formatDate(data.createdAt)}`;
+        contentTypeEl.textContent = formatType(data.contentType);
+        contentEl.innerHTML = data.renderedContent || "<p>暂无正文内容。</p>";
+        attachCopyButtons();
+        if (data.sourceUrl) {
+          sourceLinkEl.style.display = "";
+          sourceLinkEl.href = data.sourceUrl;
+          sourceLinkEl.textContent = "来源链接";
+        } else {
+          sourceLinkEl.style.display = "none";
+          sourceLinkEl.removeAttribute("href");
+          sourceLinkEl.textContent = "";
+        }
+        document.title = `${data.title || "文章"} - ${settings.siteName || "内容发布站"}`;
+      } catch (error) {
+        emptyEl.style.display = "block";
+        contentEl.style.display = "none";
+        titleEl.textContent = "文章不存在";
+        introEl.textContent = error.message;
+        categoryEl.textContent = "";
+        dateEl.textContent = "";
+        sourceLinkEl.style.display = "none";
+      }
+    }
+
+    loadArticle();
+  </script>
+</body>
+</html>

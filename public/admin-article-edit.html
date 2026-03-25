@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>编辑文章</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --ink: #13293d;
+      --accent: #f2542d;
+      --card: #fffdf8;
+      --line: #e7ddcd;
+      --soft: #31526b;
+      --warn: #a21d1d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at 90% 8%, #ffdcc7 0%, transparent 31%),
+        radial-gradient(circle at 5% 92%, #cbe8da 0%, transparent 29%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap { width: min(1160px, 92vw); margin: 36px auto 72px; }
+    .hero {
+      border: 2px solid var(--ink);
+      background: linear-gradient(135deg, #fff8ea, #fff);
+      border-radius: 20px;
+      padding: 30px 26px;
+      box-shadow: 10px 10px 0 #13293d22;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .link {
+      border: 2px solid var(--ink);
+      color: var(--ink);
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      background: #fff;
+    }
+    h1 { margin: 6px 0 8px; font-size: clamp(28px, 5vw, 44px); line-height: 1.05; }
+    .sub { margin: 0; font-size: 16px; color: var(--soft); line-height: 1.6; }
+    .card {
+      margin-top: 16px;
+      background: var(--card);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .form-row { display: grid; gap: 8px; margin-bottom: 10px; }
+    label { font-size: 13px; font-weight: 700; color: #2f4d65; }
+    input, textarea, select {
+      width: 100%;
+      border: 2px solid #d7cebf;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+      font-family: inherit;
+      display: block;
+    }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    button {
+      border: 2px solid var(--ink);
+      background: #fff;
+      color: var(--ink);
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: inherit;
+    }
+    .primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .status {
+      margin-top: 10px;
+      min-height: 22px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0b6e4f;
+    }
+    .danger { color: var(--warn); }
+    .mode-switch { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mode-chip {
+      border: 2px solid #ccbfa9;
+      background: #fff;
+      color: #31526b;
+      border-radius: 10px;
+      font-size: 12px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .mode-chip.active { border-color: var(--ink); background: #13293d; color: #fff; }
+    .editor-wrap {
+      border: 2px solid #d7cebf;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      width: 100%;
+    }
+    .editor-toolbar {
+      display: flex;
+      gap: 6px;
+      padding: 8px;
+      border-bottom: 1px solid #e8dfd0;
+      flex-wrap: wrap;
+      background: #fff9ef;
+    }
+    .tool-btn {
+      border: 1px solid #ccbfa9;
+      border-radius: 8px;
+      background: #fff;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #2b4a63;
+      line-height: 1.3;
+    }
+    .editor {
+      min-height: 240px;
+      padding: 12px;
+      outline: none;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #1f3d56;
+    }
+    .editor img { max-width: 100%; border-radius: 10px; display: block; margin: 10px 0; }
+    .content-textarea {
+      min-height: 240px;
+      font-family: "JetBrains Mono", "Consolas", monospace;
+      line-height: 1.65;
+    }
+    .editor-area { display: none; width: 100%; }
+    .editor-area.active { display: block; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="topbar">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <a class="link" href="/admin">返回后台首页</a>
+          <a class="link" href="/logout">退出登录</a>
+        </div>
+        <a class="link" id="previewLink" href="/" target="_blank">查看文章</a>
+      </div>
+      <h1>编辑已发布文章</h1>
+      <p class="sub">这是独立编辑界面，修改后直接保存覆盖。</p>
+
+      <article class="card">
+        <form id="editForm">
+          <div class="form-row">
+            <label for="articleTitle">文章标题</label>
+            <input id="articleTitle" name="articleTitle" type="text" maxlength="80" required />
+          </div>
+          <div class="form-row">
+            <label for="articleIntro">简介</label>
+            <input id="articleIntro" name="articleIntro" type="text" maxlength="220" />
+          </div>
+          <div class="form-row">
+            <label for="articleSourceUrl">来源链接（可选）</label>
+            <input id="articleSourceUrl" name="articleSourceUrl" type="url" maxlength="600" />
+          </div>
+          <div class="form-row">
+            <label for="importUrl">从外部教程链接导入（自动抓标题和正文）</label>
+            <div class="btn-row">
+              <input id="importUrl" name="importUrl" type="url" maxlength="600" placeholder="粘贴教程直链后点击导入" />
+              <button type="button" id="importFromUrlBtn">AI 抓取并填充</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="articleCategory">所属分类</label>
+            <select id="articleCategory" name="articleCategory" required></select>
+          </div>
+
+          <div class="form-row">
+            <label>内容模式</label>
+            <div class="mode-switch" id="modeSwitch">
+              <button type="button" class="mode-chip active" data-mode="rich">富文本</button>
+              <button type="button" class="mode-chip" data-mode="markdown">Markdown</button>
+              <button type="button" class="mode-chip" data-mode="html">HTML 源码</button>
+              <button type="button" class="mode-chip" data-mode="text">纯文本</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label>文章内容</label>
+            <div id="richArea" class="editor-area active">
+              <div class="editor-wrap">
+                <div class="editor-toolbar" id="richToolbar">
+                  <button type="button" class="tool-btn" data-cmd="bold">加粗</button>
+                  <button type="button" class="tool-btn" data-cmd="italic">斜体</button>
+                  <button type="button" class="tool-btn" data-cmd="underline">下划线</button>
+                  <button type="button" class="tool-btn" data-cmd="formatBlock" data-value="H2">H2</button>
+                  <button type="button" class="tool-btn" data-cmd="formatBlock" data-value="H3">H3</button>
+                  <button type="button" class="tool-btn" data-cmd="insertUnorderedList">无序列表</button>
+                  <button type="button" class="tool-btn" data-cmd="insertOrderedList">有序列表</button>
+                  <button type="button" class="tool-btn" data-action="blockquote">引用</button>
+                  <button type="button" class="tool-btn" data-action="inlineCode">行内代码</button>
+                  <button type="button" class="tool-btn" data-action="codeBlock">代码块</button>
+                  <button type="button" class="tool-btn" data-action="hr">分割线</button>
+                  <button type="button" class="tool-btn" data-action="link">链接</button>
+                </div>
+                <div id="richEditor" class="editor" contenteditable="true"></div>
+              </div>
+            </div>
+
+            <div id="markdownArea" class="editor-area">
+              <div class="editor-wrap">
+                <div class="editor-toolbar" id="markdownToolbar">
+                  <button type="button" class="tool-btn" data-snippet="title">标题</button>
+                  <button type="button" class="tool-btn" data-snippet="bold">加粗</button>
+                  <button type="button" class="tool-btn" data-snippet="quote">引用</button>
+                  <button type="button" class="tool-btn" data-snippet="list">列表</button>
+                  <button type="button" class="tool-btn" data-snippet="code">代码块</button>
+                  <button type="button" class="tool-btn" data-snippet="table">表格</button>
+                  <button type="button" class="tool-btn" data-snippet="link">链接</button>
+                </div>
+                <textarea id="markdownEditor" class="content-textarea"></textarea>
+              </div>
+            </div>
+
+            <div id="htmlArea" class="editor-area">
+              <div class="editor-wrap">
+                <div class="editor-toolbar" id="htmlToolbar">
+                  <button type="button" class="tool-btn" data-template="p">段落</button>
+                  <button type="button" class="tool-btn" data-template="h2">标题</button>
+                  <button type="button" class="tool-btn" data-template="code">代码块</button>
+                  <button type="button" class="tool-btn" data-template="table">表格</button>
+                  <button type="button" class="tool-btn" data-template="quote">引用</button>
+                </div>
+                <textarea id="htmlEditor" class="content-textarea"></textarea>
+              </div>
+            </div>
+
+            <div id="textArea" class="editor-area">
+              <textarea id="textEditor" class="content-textarea"></textarea>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" id="uploadImageBtn">上传图片并插入</button>
+              <button type="button" id="clearContentBtn">清空内容</button>
+            </div>
+          </div>
+
+          <button class="primary" type="submit">保存修改</button>
+        </form>
+        <div id="editStatus" class="status"></div>
+      </article>
+    </section>
+  </main>
+
+  <input type="file" id="imageInput" accept="image/*" hidden />
+
+  <script>
+    const state = {
+      categories: [],
+      articleId: "",
+      contentMode: "rich"
+    };
+
+    const editForm = document.getElementById("editForm");
+    const editStatus = document.getElementById("editStatus");
+    const categorySelect = document.getElementById("articleCategory");
+    const modeSwitch = document.getElementById("modeSwitch");
+    const richArea = document.getElementById("richArea");
+    const markdownArea = document.getElementById("markdownArea");
+    const htmlArea = document.getElementById("htmlArea");
+    const textArea = document.getElementById("textArea");
+    const richToolbar = document.getElementById("richToolbar");
+    const markdownToolbar = document.getElementById("markdownToolbar");
+    const htmlToolbar = document.getElementById("htmlToolbar");
+    const richEditor = document.getElementById("richEditor");
+    const markdownEditor = document.getElementById("markdownEditor");
+    const htmlEditor = document.getElementById("htmlEditor");
+    const textEditor = document.getElementById("textEditor");
+    const articleSourceUrlInput = document.getElementById("articleSourceUrl");
+    const importUrlInput = document.getElementById("importUrl");
+    const importFromUrlBtn = document.getElementById("importFromUrlBtn");
+    const uploadImageBtn = document.getElementById("uploadImageBtn");
+    const clearContentBtn = document.getElementById("clearContentBtn");
+    const imageInput = document.getElementById("imageInput");
+    const previewLink = document.getElementById("previewLink");
+
+    function setStatus(text, isError = false) {
+      editStatus.textContent = text;
+      editStatus.classList.toggle("danger", isError);
+    }
+
+    function getArticleIdFromPath() {
+      const parts = location.pathname.split("/").filter(Boolean);
+      return parts.length >= 4 ? parts[2] : "";
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function insertAtCursor(textarea, text) {
+      const start = textarea.selectionStart ?? textarea.value.length;
+      const end = textarea.selectionEnd ?? textarea.value.length;
+      textarea.value = textarea.value.slice(0, start) + text + textarea.value.slice(end);
+      const pos = start + text.length;
+      textarea.focus();
+      textarea.setSelectionRange(pos, pos);
+    }
+
+    function execRichCommand(cmd, value) {
+      richEditor.focus();
+      document.execCommand(cmd, false, value);
+      richEditor.focus();
+    }
+
+    function setMode(mode) {
+      state.contentMode = mode;
+      modeSwitch.querySelectorAll(".mode-chip").forEach((el) => {
+        el.classList.toggle("active", el.dataset.mode === mode);
+      });
+      richArea.classList.toggle("active", mode === "rich");
+      markdownArea.classList.toggle("active", mode === "markdown");
+      htmlArea.classList.toggle("active", mode === "html");
+      textArea.classList.toggle("active", mode === "text");
+    }
+
+    function getActiveContent() {
+      if (state.contentMode === "rich") return richEditor.innerHTML.trim();
+      if (state.contentMode === "markdown") return markdownEditor.value.trim();
+      if (state.contentMode === "html") return htmlEditor.value.trim();
+      return textEditor.value.trim();
+    }
+
+    function setEditorByType(contentType, content) {
+      setMode(contentType || "rich");
+      richEditor.innerHTML = "";
+      markdownEditor.value = "";
+      htmlEditor.value = "";
+      textEditor.value = "";
+      if (contentType === "markdown") markdownEditor.value = content || "";
+      else if (contentType === "html") htmlEditor.value = content || "";
+      else if (contentType === "text") textEditor.value = content || "";
+      else richEditor.innerHTML = content || "";
+    }
+
+    function renderCategories(categories, selectedId) {
+      categorySelect.innerHTML = "";
+      categories.forEach((c) => {
+        const op = document.createElement("option");
+        op.value = c.id;
+        op.textContent = c.name;
+        if (c.id === selectedId) op.selected = true;
+        categorySelect.appendChild(op);
+      });
+    }
+
+    modeSwitch.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) return;
+      if (!target.dataset.mode) return;
+      setMode(target.dataset.mode);
+    });
+
+    richToolbar.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) return;
+      const cmd = target.dataset.cmd;
+      const value = target.dataset.value;
+      const action = target.dataset.action;
+      if (cmd) return execRichCommand(cmd, value);
+      if (action === "blockquote") return execRichCommand("formatBlock", "BLOCKQUOTE");
+      if (action === "hr") return execRichCommand("insertHorizontalRule");
+      if (action === "link") {
+        const url = window.prompt("请输入链接地址（https://...）");
+        if (url) execRichCommand("createLink", url);
+        return;
+      }
+      if (action === "inlineCode") {
+        const code = window.prompt("输入行内代码");
+        if (code) execRichCommand("insertHTML", `<code>${escapeHtml(code)}</code>`);
+        return;
+      }
+      if (action === "codeBlock") {
+        const lang = window.prompt("代码语言（可选）") || "";
+        const code = window.prompt("输入代码");
+        if (!code) return;
+        const cls = lang ? ` class="language-${escapeHtml(lang)}"` : "";
+        execRichCommand("insertHTML", `<pre><code${cls}>${escapeHtml(code)}</code></pre>`);
+      }
+    });
+
+    markdownToolbar.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) return;
+      const map = {
+        title: "## 二级标题\n",
+        bold: "**加粗文本**",
+        quote: "> 这里是引用内容\n",
+        list: "- 列表项 1\n- 列表项 2\n",
+        code: "~~~js\nconsole.log('hello');\n~~~\n",
+        table: "| 列1 | 列2 |\n| --- | --- |\n| 内容A | 内容B |\n",
+        link: "[链接文字](https://example.com)"
+      };
+      const snippet = map[target.dataset.snippet] || "";
+      if (snippet) insertAtCursor(markdownEditor, snippet);
+    });
+
+    htmlToolbar.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) return;
+      const map = {
+        p: "<p>这里是段落内容</p>\n",
+        h2: "<h2>二级标题</h2>\n",
+        code: "<pre><code class=\"language-js\">console.log('hello');</code></pre>\n",
+        table: "<table><thead><tr><th>列1</th><th>列2</th></tr></thead><tbody><tr><td>A</td><td>B</td></tr></tbody></table>\n",
+        quote: "<blockquote>这里是引用内容</blockquote>\n"
+      };
+      const tpl = map[target.dataset.template] || "";
+      if (tpl) insertAtCursor(htmlEditor, tpl);
+    });
+
+    uploadImageBtn.addEventListener("click", () => imageInput.click());
+
+    imageInput.addEventListener("change", async () => {
+      const file = imageInput.files && imageInput.files[0];
+      if (!file) return;
+      setStatus("图片上传中...");
+      try {
+        const fd = new FormData();
+        fd.append("image", file);
+        const res = await fetch("/api/uploads/image", { method: "POST", body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "上传失败");
+
+        if (state.contentMode === "rich") execRichCommand("insertHTML", `<img src="${data.url}" alt="图片" />`);
+        if (state.contentMode === "markdown") insertAtCursor(markdownEditor, `![图片描述](${data.url})`);
+        if (state.contentMode === "html") insertAtCursor(htmlEditor, `<img src="${data.url}" alt="图片" />`);
+        if (state.contentMode === "text") insertAtCursor(textEditor, data.url);
+        setStatus("图片已插入内容");
+      } catch (error) {
+        setStatus(error.message, true);
+      } finally {
+        imageInput.value = "";
+      }
+    });
+
+    clearContentBtn.addEventListener("click", () => {
+      if (state.contentMode === "rich") richEditor.innerHTML = "";
+      if (state.contentMode === "markdown") markdownEditor.value = "";
+      if (state.contentMode === "html") htmlEditor.value = "";
+      if (state.contentMode === "text") textEditor.value = "";
+      setStatus("当前模式内容已清空");
+    });
+
+    importFromUrlBtn.addEventListener("click", async () => {
+      const url = String(importUrlInput.value || articleSourceUrlInput.value || "").trim();
+      if (!url) {
+        setStatus("请先输入教程链接", true);
+        window.alert("请先输入教程链接");
+        return;
+      }
+      importFromUrlBtn.disabled = true;
+      const oldText = importFromUrlBtn.textContent;
+      importFromUrlBtn.textContent = "AI 抓取中...";
+      setStatus("AI 抓取中...");
+      try {
+        const res = await fetch("/api/import-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "抓取失败");
+
+        document.getElementById("articleTitle").value = data.title || "";
+        document.getElementById("articleIntro").value = data.intro || "";
+        articleSourceUrlInput.value = data.sourceUrl || url;
+        importUrlInput.value = data.sourceUrl || url;
+
+        setEditorByType("rich", data.content || "");
+        const importLabel = data.importMethod === "ai" ? "AI直抓" : data.importMethod === "ai-mirror" ? "镜像+AI净化" : data.importMethod === "mirror" ? "镜像净化回退" : "基础抓取";
+        const statusText = data.warning ? `导入成功（${importLabel}）：${data.warning}` : `导入成功（${importLabel}），已自动填充标题和正文`;
+        setStatus(statusText);
+      } catch (error) {
+        setStatus(error.message, true);
+        window.alert(error.message);
+      } finally {
+        importFromUrlBtn.disabled = false;
+        importFromUrlBtn.textContent = oldText;
+      }
+    });
+
+    editForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      setStatus("保存中...");
+      const fd = new FormData(editForm);
+      const payload = {
+        title: String(fd.get("articleTitle") || "").trim(),
+        intro: String(fd.get("articleIntro") || "").trim(),
+        sourceUrl: String(fd.get("articleSourceUrl") || "").trim(),
+        categoryId: String(fd.get("articleCategory") || "").trim(),
+        contentType: state.contentMode,
+        content: getActiveContent()
+      };
+      try {
+        const res = await fetch(`/api/articles/${state.articleId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "保存失败");
+        setStatus("保存成功");
+      } catch (error) {
+        setStatus(error.message, true);
+      }
+    });
+
+    (async () => {
+      try {
+        const articleId = getArticleIdFromPath();
+        if (!articleId) throw new Error("缺少文章 ID");
+        state.articleId = articleId;
+        previewLink.href = `/article/${articleId}`;
+
+        const [bootRes, articleRes] = await Promise.all([
+          fetch("/api/bootstrap"),
+          fetch(`/api/articles/${articleId}`)
+        ]);
+        if (!bootRes.ok) throw new Error("加载分类失败");
+        if (!articleRes.ok) throw new Error("文章不存在");
+        const boot = await bootRes.json();
+        const article = await articleRes.json();
+
+        state.categories = Array.isArray(boot.categories) ? boot.categories : [];
+        if (!state.categories.length) throw new Error("请先创建分类");
+
+        renderCategories(state.categories, article.categoryId);
+        document.getElementById("articleTitle").value = article.title || "";
+        document.getElementById("articleIntro").value = article.intro || "";
+        articleSourceUrlInput.value = article.sourceUrl || "";
+        importUrlInput.value = article.sourceUrl || "";
+        setEditorByType(article.contentType || "rich", article.content || "");
+      } catch (error) {
+        setStatus(error.message, true);
+      }
+    })();
+  </script>
+</body>
+</html>

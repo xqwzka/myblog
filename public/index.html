@@ -1,0 +1,616 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>内容发布站</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --ink: #13293d;
+      --accent: #f2542d;
+      --accent-2: #0b6e4f;
+      --accent-3: #4f3d8a;
+      --card: #fffdf8;
+      --line: #e7ddcd;
+      --soft: #2b4a63;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at 85% 10%, #ffd8bf 0%, transparent 30%),
+        radial-gradient(circle at 10% 90%, #cce7dd 0%, transparent 28%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1060px, 92vw);
+      margin: 36px auto 90px;
+    }
+
+    .hero {
+      border: 2px solid var(--ink);
+      background: linear-gradient(135deg, #fff8ea, #fff);
+      border-radius: 20px;
+      padding: 32px 28px;
+      box-shadow: 10px 10px 0 #13293d22;
+      animation: rise .55s ease;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      display: inline-block;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-weight: 700;
+      background: #fff;
+      margin-bottom: 12px;
+    }
+
+    .admin-link {
+      border: 2px solid var(--ink);
+      color: var(--ink);
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      background: #fff;
+      transition: transform .15s ease;
+    }
+
+    .admin-link:hover { transform: translateY(-2px); }
+
+    h1 {
+      margin: 6px 0 10px;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.05;
+      letter-spacing: .3px;
+    }
+
+    .sub {
+      margin: 0;
+      font-size: 17px;
+      color: var(--soft);
+      line-height: 1.6;
+    }
+
+    .toolbar {
+      margin-top: 22px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 2px dashed #d6ccb9;
+      background: #fff;
+      display: grid;
+      gap: 12px;
+    }
+
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .toolbar-row strong {
+      font-size: 14px;
+      margin-right: 2px;
+    }
+
+    button {
+      border: 2px solid var(--ink);
+      background: #fff;
+      color: var(--ink);
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform .15s ease, background .2s ease;
+      font-weight: 700;
+    }
+
+    button:hover { transform: translateY(-2px); }
+    button.active { background: var(--accent); color: #fff; }
+
+    .views {
+      margin-top: 22px;
+    }
+
+    .grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      transition: .2s ease;
+      animation: fade .5s ease both;
+    }
+
+    .card:hover {
+      border-color: var(--ink);
+      transform: translateY(-3px);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .meta {
+      margin: 0;
+      color: #37566f;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .title-stack {
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .title-stack li {
+      border: 1px solid #e6dece;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .title-link {
+      color: #17354f;
+      text-decoration: none;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .title-link:hover { text-decoration: underline; }
+
+    .title-date {
+      color: #5f7a90;
+      white-space: nowrap;
+    }
+
+    .pill {
+      display: inline-block;
+      margin-top: 10px;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .pill-0 { background: var(--accent); }
+    .pill-1 { background: var(--accent-2); }
+    .pill-2 { background: var(--accent-3); }
+
+    .list-rows {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .row-card {
+      background: var(--card);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      transition: .2s ease;
+      animation: fade .5s ease both;
+    }
+
+    .row-card:hover {
+      border-color: var(--ink);
+      transform: translateY(-2px);
+    }
+
+    .row-title {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.3;
+    }
+
+    .row-title a {
+      color: #17354f;
+      text-decoration: none;
+    }
+
+    .row-title a:hover { text-decoration: underline; }
+
+    .intro {
+      margin: 10px 0;
+      color: #37566f;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .row-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      border: 2px dashed #d8cfc0;
+      border-radius: 14px;
+      padding: 18px;
+      color: #5a7388;
+      background: #fff;
+      font-weight: 600;
+    }
+
+    .muted {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #5f7a90;
+    }
+
+    .hidden { display: none; }
+
+    .view-dock {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      border: 2px solid var(--ink);
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 6px 6px 0 #13293d22;
+      display: grid;
+      overflow: hidden;
+      z-index: 20;
+    }
+
+    .dock-btn {
+      border: 0;
+      border-radius: 0;
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      border-bottom: 2px solid #e7ddcd;
+    }
+
+    .dock-btn:last-child { border-bottom: 0; }
+    .dock-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding: 24px 16px; }
+      .sub { font-size: 15px; }
+      .grid { grid-template-columns: 1fr; }
+      .toolbar { padding: 12px; }
+      .view-dock { right: 10px; bottom: 10px; }
+      .dock-btn { width: 36px; height: 36px; font-size: 16px; }
+      .row-title { font-size: 18px; }
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="topbar">
+        <span class="tag" id="siteTag">内容发布站</span>
+        <a class="admin-link" href="/login?next=%2Fadmin">登录</a>
+      </div>
+      <h1 id="homeTitle">分类文章展示台</h1>
+      <p class="sub" id="homeSubtitle">点击标题可直接进入文章内容页。右下角图标可以在模块视图和列表视图之间切换。</p>
+
+      <div class="toolbar">
+        <div class="toolbar-row" id="categoryFilters">
+          <strong>分类：</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="views">
+      <div id="moduleView" class="grid"></div>
+      <div id="listView" class="list-rows hidden"></div>
+      <div id="emptyView" class="empty hidden">当前没有可展示的文章，去后台发布一篇试试。</div>
+      <p class="muted" id="stats"></p>
+    </section>
+  </main>
+
+  <div class="view-dock" id="viewDock" aria-label="切换视图">
+    <button class="dock-btn" data-view="module" title="模块视图">▦</button>
+    <button class="dock-btn active" data-view="list" title="列表视图">☰</button>
+  </div>
+
+  <script>
+    const state = {
+      settings: {},
+      categories: [],
+      articles: [],
+      activeCategory: "all",
+      view: "list"
+    };
+
+    const siteTagEl = document.getElementById("siteTag");
+    const homeTitleEl = document.getElementById("homeTitle");
+    const homeSubtitleEl = document.getElementById("homeSubtitle");
+    const categoryFiltersEl = document.getElementById("categoryFilters");
+    const moduleViewEl = document.getElementById("moduleView");
+    const listViewEl = document.getElementById("listView");
+    const emptyViewEl = document.getElementById("emptyView");
+    const statsEl = document.getElementById("stats");
+    const viewDock = document.getElementById("viewDock");
+
+    const pillClassByCategoryId = new Map();
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      if (Number.isNaN(date.getTime())) return "";
+      return date.toLocaleDateString("zh-CN", { month: "2-digit", day: "2-digit" });
+    }
+
+    function getPillClass(categoryId, indexHint = 0) {
+      if (!pillClassByCategoryId.has(categoryId)) {
+        pillClassByCategoryId.set(categoryId, `pill-${indexHint % 3}`);
+      }
+      return pillClassByCategoryId.get(categoryId);
+    }
+
+    function getVisibleArticles() {
+      if (state.activeCategory === "all") return [...state.articles];
+      return state.articles.filter((item) => item.categoryId === state.activeCategory);
+    }
+
+    function renderCategoryFilters() {
+      categoryFiltersEl.querySelectorAll("button[data-category]").forEach((el) => el.remove());
+
+      const allButton = document.createElement("button");
+      allButton.textContent = "全部";
+      allButton.dataset.category = "all";
+      if (state.activeCategory === "all") allButton.classList.add("active");
+      categoryFiltersEl.appendChild(allButton);
+
+      state.categories.forEach((category, index) => {
+        const button = document.createElement("button");
+        button.textContent = category.name;
+        button.dataset.category = category.id;
+        button.dataset.index = String(index);
+        if (state.activeCategory === category.id) button.classList.add("active");
+        categoryFiltersEl.appendChild(button);
+      });
+    }
+
+    function renderModuleView() {
+      moduleViewEl.innerHTML = "";
+      const categoryList = state.activeCategory === "all"
+        ? state.categories
+        : state.categories.filter((item) => item.id === state.activeCategory);
+
+      categoryList.forEach((category, index) => {
+        const categoryArticles = state.articles
+          .filter((item) => item.categoryId === category.id)
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        const card = document.createElement("article");
+        card.className = "card";
+
+        const title = document.createElement("h3");
+        title.textContent = category.name;
+
+        const meta = document.createElement("p");
+        meta.className = "meta";
+        meta.textContent = `共 ${categoryArticles.length} 篇文章`;
+
+        const pill = document.createElement("span");
+        pill.className = `pill ${getPillClass(category.id, index)}`;
+        pill.textContent = "分类";
+
+        card.appendChild(title);
+        card.appendChild(meta);
+
+        if (categoryArticles.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "meta";
+          empty.style.marginTop = "10px";
+          empty.textContent = "暂时没有文章";
+          card.appendChild(empty);
+        } else {
+          const list = document.createElement("ul");
+          list.className = "title-stack";
+
+          categoryArticles.forEach((article) => {
+            const item = document.createElement("li");
+
+            const left = document.createElement("a");
+            left.className = "title-link";
+            left.href = `/article/${article.id}`;
+            left.textContent = article.title;
+
+            const right = document.createElement("span");
+            right.className = "title-date";
+            right.textContent = formatDate(article.createdAt);
+
+            item.appendChild(left);
+            item.appendChild(right);
+            list.appendChild(item);
+          });
+
+          card.appendChild(list);
+        }
+
+        card.appendChild(pill);
+        moduleViewEl.appendChild(card);
+      });
+    }
+
+    function renderListView() {
+      listViewEl.innerHTML = "";
+      const visibleArticles = getVisibleArticles().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      visibleArticles.forEach((article) => {
+        const categoryIndex = state.categories.findIndex((item) => item.id === article.categoryId);
+
+        const card = document.createElement("article");
+        card.className = "row-card";
+
+        const h3 = document.createElement("h3");
+        h3.className = "row-title";
+        const link = document.createElement("a");
+        link.href = `/article/${article.id}`;
+        link.textContent = article.title;
+        h3.appendChild(link);
+
+        const intro = document.createElement("p");
+        intro.className = "intro";
+        intro.textContent = article.intro || "这篇文章暂无简介。";
+
+        const meta = document.createElement("div");
+        meta.className = "row-meta";
+
+        const pill = document.createElement("span");
+        pill.className = `pill ${getPillClass(article.categoryId, categoryIndex)}`;
+        pill.textContent = article.categoryName || "未分类";
+
+        const date = document.createElement("span");
+        date.className = "meta";
+        date.textContent = `发布时间 ${new Date(article.createdAt).toLocaleString("zh-CN")}`;
+
+        meta.appendChild(pill);
+        meta.appendChild(date);
+
+        card.appendChild(h3);
+        card.appendChild(intro);
+        card.appendChild(meta);
+
+        listViewEl.appendChild(card);
+      });
+    }
+
+    function syncViewVisible() {
+      const empty = getVisibleArticles().length === 0;
+      emptyViewEl.classList.toggle("hidden", !empty);
+
+      moduleViewEl.classList.toggle("hidden", state.view !== "module" || empty);
+      listViewEl.classList.toggle("hidden", state.view !== "list" || empty);
+
+      const label = state.activeCategory === "all"
+        ? "全部分类"
+        : (state.categories.find((item) => item.id === state.activeCategory)?.name || "当前分类");
+
+      statsEl.textContent = `${label} · ${getVisibleArticles().length} 篇文章 · 共 ${state.categories.length} 个分类`;
+
+      viewDock.querySelectorAll("button[data-view]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.view === state.view);
+      });
+
+      categoryFiltersEl.querySelectorAll("button[data-category]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.category === state.activeCategory);
+      });
+    }
+
+    function renderAll() {
+      renderCategoryFilters();
+      renderModuleView();
+      renderListView();
+      syncViewVisible();
+    }
+
+    async function loadData() {
+      try {
+        const response = await fetch("/api/bootstrap");
+        if (!response.ok) throw new Error("加载失败");
+        const data = await response.json();
+
+        state.settings = data.settings || {};
+        state.categories = Array.isArray(data.categories) ? data.categories : [];
+        state.articles = Array.isArray(data.articles) ? data.articles : [];
+
+        const siteName = String(state.settings.siteName || "内容发布站");
+        const homeTitle = String(state.settings.homeTitle || "分类文章展示台");
+        const homeSubtitle = String(state.settings.homeSubtitle || "点击标题可直接进入文章内容页。右下角图标可以在模块视图和列表视图之间切换。");
+
+        document.title = siteName;
+        siteTagEl.textContent = siteName;
+        homeTitleEl.textContent = homeTitle;
+        homeSubtitleEl.textContent = homeSubtitle;
+
+        const stillExists = state.activeCategory === "all" || state.categories.some((item) => item.id === state.activeCategory);
+        if (!stillExists) state.activeCategory = "all";
+
+        renderAll();
+      } catch (error) {
+        emptyViewEl.classList.remove("hidden");
+        emptyViewEl.textContent = "加载失败，请检查后端服务是否启动。";
+        moduleViewEl.classList.add("hidden");
+        listViewEl.classList.add("hidden");
+      }
+    }
+
+    categoryFiltersEl.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) return;
+      const category = target.dataset.category;
+      if (!category) return;
+      state.activeCategory = category;
+      renderAll();
+    });
+
+    viewDock.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) return;
+      const view = target.dataset.view;
+      if (!view) return;
+      state.view = view;
+      syncViewVisible();
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
